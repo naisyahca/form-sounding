@@ -1,0 +1,1220 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Pemeriksaan Lubang Ledak</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
+  <style>
+    :root {
+      --primary-color: #2c3e50;
+      --secondary-color: #3498db;
+      --accent-color: #f39c12;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 10px;
+      background: #f5f5f5;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .container {
+      max-width: 100%;
+      margin: 0 auto;
+      padding-bottom: 60px;
+    }
+
+    .header {
+      display: flex;
+      flex-direction: column;
+      border: 2px solid var(--primary-color);
+      border-radius: 8px;
+      margin-bottom: 15px;
+      background: white;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .header-section {
+      padding: 12px;
+      position: relative;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .header-section:last-child {
+      border-bottom: none;
+    }
+
+    .title {
+      font-weight: bold;
+      font-size: 1.1rem;
+      text-align: center;
+      color: var(--primary-color);
+    }
+
+    .cross-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 15px 0;
+      position: relative;
+      height: 120px;
+      width: 120px;
+      margin: 15px auto;
+    }
+
+    .cross-line {
+      position: absolute;
+      background-color: var(--primary-color);
+    }
+
+    .horizontal-line {
+      width: 100px;
+      height: 2px;
+      top: 50%;
+      left: 10px;
+      transform: translateY(-50%);
+    }
+
+    .vertical-line {
+      width: 2px;
+      height: 100px;
+      left: 50%;
+      top: 10px;
+      transform: translateX(-50%);
+    }
+
+    .cross-square {
+      width: 30px;
+      height: 30px;
+      border: 2px solid var(--primary-color);
+      background-color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: absolute;
+    }
+
+    .cross-square.top {
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .cross-square.right {
+      top: 50%;
+      right: 0;
+      transform: translateY(-50%);
+    }
+
+    .cross-square.bottom {
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .cross-square.left {
+      top: 50%;
+      left: 0;
+      transform: translateY(-50%);
+    }
+
+    .cross-square.filled {
+      background-color: #e3f2fd;
+    }
+
+    .cross-square:active {
+      transform: scale(1.1);
+    }
+
+    .input-group {
+      margin-bottom: 10px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 0.9rem;
+      color: var(--primary-color);
+      font-weight: 500;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 0.9rem;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--secondary-color);
+      box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+    }
+
+    .grid-container {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      margin: 15px 0;
+      background: white;
+      border-radius: 8px;
+      padding: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      max-width: 100%;
+    }
+
+    .grid {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-width: fit-content;
+      width: 100%;
+    }
+
+    .row {
+      display: flex;
+      gap: 6px;
+      justify-content: flex-start;
+      align-items: center;
+      position: relative;
+      min-width: fit-content;
+    }
+
+    .row.offset {
+      margin-left: 20px;
+    }
+
+    .row-label {
+      width: 30px;
+      text-align: center;
+      font-weight: bold;
+      font-size: 0.9rem;
+      color: var(--primary-color);
+    }
+
+    .column-label {
+      width: 30px;
+      text-align: center;
+      font-weight: bold;
+      font-size: 0.8rem;
+      color: var(--primary-color);
+      margin-bottom: 2px;
+    }
+
+    .hole {
+      width: 30px;
+      height: 30px;
+      min-width: 30px;
+      border: 2px solid var(--primary-color);
+      border-radius: 50%;
+      background-color: white;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: bold;
+      color: var(--primary-color);
+      position: relative;
+    }
+
+    .hole.selected {
+      border-color: red;
+      box-shadow: 0 0 0 2px rgba(255, 0, 0, 0.3);
+      transform: scale(1.1);
+    }
+
+    .hole.filled {
+      background-color: #e3f2fd;
+    }
+
+    .hole.yellow {
+      background-color: #fff9c4;
+    }
+
+    .hole.green {
+      background-color: #c8e6c9;
+    }
+
+    .hole:active {
+      transform: scale(1.05);
+    }
+
+    .number-pad {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: white;
+      padding: 10px;
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 5px;
+      box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+      z-index: 100;
+      transform: translateY(100%);
+      transition: transform 0.3s;
+    }
+
+    .number-pad.visible {
+      transform: translateY(0);
+    }
+
+    .number-btn {
+      padding: 12px 0;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      background: #f5f5f5;
+      text-align: center;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .number-btn:active {
+      background: #e0e0e0;
+    }
+
+    .number-btn.clear {
+      grid-column: span 2;
+      background: #ffebee;
+      color: #c62828;
+    }
+
+    .number-btn.close {
+      grid-column: span 3;
+      background: #e8f5e9;
+      color: #2e7d32;
+    }
+
+    .color-options {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 5px;
+      margin-top: 5px;
+    }
+
+    .color-btn {
+      padding: 8px 0;
+      border-radius: 4px;
+      text-align: center;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .color-btn.yellow {
+      background: #fff9c4;
+      border: 1px solid #fff59d;
+    }
+
+    .color-btn.green {
+      background: #c8e6c9;
+      border: 1px solid #a5d6a7;
+    }
+
+    .button-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 15px 0;
+    }
+
+    button {
+      padding: 10px 15px;
+      font-size: 0.9rem;
+      border: none;
+      border-radius: 4px;
+      background-color: var(--secondary-color);
+      color: white;
+      cursor: pointer;
+      flex: 1 1 120px;
+      transition: background-color 0.2s;
+    }
+
+    button:active {
+      background-color: #2980b9;
+      transform: translateY(1px);
+    }
+
+    button.download {
+      background-color: var(--accent-color);
+    }
+
+    button.image-download {
+      background-color: #27ae60;
+    }
+
+    textarea {
+      width: 100%;
+      height: 120px;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 0.9rem;
+      margin-top: 10px;
+      resize: vertical;
+    }
+
+    .bottom-info {
+      margin-top: 15px;
+      padding: 12px;
+      border: 2px solid var(--primary-color);
+      border-radius: 8px;
+      background: white;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .section-title {
+      font-weight: bold;
+      margin-bottom: 10px;
+      color: var(--primary-color);
+      font-size: 1rem;
+    }
+
+    .color-legend {
+      margin-top: 15px;
+      background: white;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 5px;
+    }
+
+    .legend-color {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: 1px solid #ddd;
+    }
+
+    .footer-note {
+      text-align: center;
+      margin: 15px 0 5px;
+      font-style: italic;
+      color: #666;
+      font-size: 0.9rem;
+    }
+
+    .signature-section {
+      margin-top: 20px;
+      display: flex;
+      justify-content: space-between;
+      border-top: 1px solid #ddd;
+      padding-top: 15px;
+    }
+
+    .signature-box {
+      width: 48%;
+    }
+
+    .signature-container {
+      text-align: center;
+    }
+
+    .signature-pad-container {
+      position: relative;
+      width: 100%;
+      margin-bottom: 10px;
+    }
+
+    .signature-pad {
+      width: 100%;
+      height: 120px;
+      border: 1px solid #ddd;
+      background-color: white;
+      touch-action: none;
+    }
+
+    .signature-clear {
+      background-color: #ffebee;
+      color: #c62828;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-top: 5px;
+    }
+
+    .signature-name {
+      font-weight: bold;
+      margin-top: 5px;
+    }
+
+    .signature-timestamp {
+      font-size: 0.8rem;
+      color: #666;
+      margin-top: 5px;
+    }
+
+    @media (min-width: 600px) {
+      .header {
+        flex-direction: row;
+      }
+      
+      .header-section {
+        flex: 1;
+        border-bottom: none;
+        border-right: 1px solid #ddd;
+      }
+      
+      .header-section:last-child {
+        border-right: none;
+      }
+      
+      .grid-container {
+        padding: 15px;
+      }
+      
+      .hole {
+        width: 30px;
+        height: 30px;
+        min-width: 30px;
+        font-size: 12px;
+      }
+      
+      .row-label {
+        width: 30px;
+      }
+      
+      .column-label {
+        width: 30px;
+      }
+    }
+
+    @media (orientation: landscape) {
+      .grid {
+        gap: 4px;
+      }
+      
+      .row {
+        gap: 4px;
+      }
+      
+      .hole {
+        width: 28px;
+        height: 28px;
+        min-width: 28px;
+        font-size: 11px;
+      }
+    }
+
+    /* CSS khusus untuk ekspor PDF */
+    .pdf-export-container {
+      position: absolute;
+      left: -10000px;
+      top: 0;
+      width: 1900px;
+      padding: 20px;
+      background: white;
+      box-sizing: border-box;
+    }
+    .pdf-export {
+      width: 100%;
+    }
+    .pdf-export .hole {
+      width: 28px !important;
+      height: 28px !important;
+      font-size: 11px !important;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="header-section title">
+        <div>PT KALIMANTAN PRIMA PERSADA<br>DISTRICT RANTAU<br>PRODUCTION DEPARTMENT</div>
+        <div style="margin-top: 8px; font-size: 1.2rem;">PEMERIKSAAN KONDISI DAN KEDALAMAN LUBANG</div>
+        
+        <div class="cross-section">
+          <div class="cross-line horizontal-line"></div>
+          <div class="cross-line vertical-line"></div>
+          <div class="cross-square top" onclick="toggleCrossSquare(this)"></div>
+          <div class="cross-square right" onclick="toggleCrossSquare(this)"></div>
+          <div class="cross-square bottom" onclick="toggleCrossSquare(this)"></div>
+          <div class="cross-square left" onclick="toggleCrossSquare(this)"></div>
+        </div>
+      </div>
+      <div class="header-section">
+        <div class="input-group">
+          <label for="pit">PIT:</label>
+          <input type="text" id="pit" placeholder="Masukkan nama pit">
+        </div>
+        <div class="input-group">
+          <label for="tanggal">TANGGAL:</label>
+          <input type="date" id="tanggal">
+        </div>
+        <div class="input-group">
+          <label for="shift">SHIFT:</label>
+          <select id="shift">
+            <option value="">Pilih shift</option>
+            <option value="Pagi">Pagi</option>
+            <option value="Siang">Siang</option>
+            <option value="Malam">Malam</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-container">
+      <div class="section-title">PETA LUBANG LEDAK (Isi angka kedalaman dalam meter)</div>
+      <div class="grid" id="dotGrid"></div>
+    </div>
+
+    <div class="bottom-info">
+      <div class="section-title">INFORMASI TEKNIS</div>
+      <div class="input-group">
+        <label for="blok">Blok:</label>
+        <input type="text" id="blok" placeholder="Contoh: A1">
+      </div>
+      <div class="input-group">
+        <label for="strip">Strip:</label>
+        <input type="text" id="strip" placeholder="Contoh: S1">
+      </div>
+      <div class="input-group">
+        <label for="elevasi">Elevasi:</label>
+        <input type="text" id="elevasi" placeholder="Dalam meter">
+      </div>
+      <div class="input-group">
+        <label for="rl">RL:</label>
+        <input type="text" id="rl" placeholder="Reduced Level">
+      </div>
+      <div class="input-group">
+        <label for="diaHole">Dia. Hole:</label>
+        <input type="text" id="diaHole" placeholder="Diameter lubang (mm)">
+      </div>
+      <div class="input-group">
+        <label for="spacing">Spacing:</label>
+        <input type="text" id="spacing" placeholder="Jarak antar lubang">
+      </div>
+      <div class="input-group">
+        <label for="burden">Burden:</label>
+        <input type="text" id="burden" placeholder="Jarak burden">
+      </div>
+      <div class="input-group">
+        <label for="totalHole">Total Lubang:</label>
+        <input type="text" id="totalHole" readonly style="background-color: #f0f0f0; font-weight: bold;">
+      </div>
+      <div class="input-group">
+        <label for="wetHoles">Lubang Basah:</label>
+        <input type="text" id="wetHoles" readonly style="background-color: #f0f0f0; font-weight: bold;">
+      </div>
+      <div class="input-group">
+        <label for="avgDepth">Kedalaman Rata-rata (m):</label>
+        <input type="text" id="avgDepth" readonly style="background-color: #f0f0f0; font-weight: bold;">
+      </div>
+      <div class="input-group">
+        <label for="neededTime">Waktu Yang Dibutuhkan:</label>
+        <input type="text" id="neededTime" readonly style="background-color: #f0f0f0; font-weight: bold;">
+      </div>
+      
+      <div class="signature-section">
+        <div class="signature-box">
+          <div class="signature-container">
+            <div class="signature-pad-container">
+              <canvas class="signature-pad" id="signaturePad1"></canvas>
+            </div>
+            <button class="signature-clear" onclick="clearSignature(1)">Hapus Tanda Tangan</button>
+            <div>Dibuat Oleh,</div>
+            <div class="signature-name">Crew Blasting</div>
+            <div class="signature-timestamp" id="timestamp1"></div>
+          </div>
+        </div>
+        <div class="signature-box">
+          <div class="signature-container">
+            <div class="signature-pad-container">
+              <canvas class="signature-pad" id="signaturePad2"></canvas>
+            </div>
+            <button class="signature-clear" onclick="clearSignature(2)">Hapus Tanda Tangan</button>
+            <div>Disetujui Oleh,</div>
+            <div class="signature-name">GL Drill & Blast</div>
+            <div class="signature-timestamp" id="timestamp2"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="button-group">
+      <button onclick="submitDots()">Simpan Data</button>
+      <button class="download" onclick="downloadAsPDF()">Unduh PDF</button>
+      <button class="image-download" onclick="downloadAsImage()">Unduh Gambar</button>
+    </div>
+
+    <div class="color-legend">
+      <div class="section-title">KETERANGAN WARNA:</div>
+      <div class="legend-item">
+        <div class="legend-color" style="background: #fff9c4; border-color: #fff59d;"></div>
+        <span>Kuning: Kondisi Kering</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background: #c8e6c9; border-color: #a5d6a7;"></div>
+        <span>Hijau: Kondisi Basah</span>
+      </div>
+    </div>
+
+    <div class="footer-note">Edited by Nur Aisyah</div>
+    
+    <textarea id="output" readonly placeholder="Hasil pemeriksaan akan muncul di sini..."></textarea>
+  </div>
+
+  <div class="number-pad" id="numberPad">
+    <div class="number-btn" onclick="setHoleValue(1)">1</div>
+    <div class="number-btn" onclick="setHoleValue(2)">2</div>
+    <div class="number-btn" onclick="setHoleValue(3)">3</div>
+    <div class="number-btn" onclick="setHoleValue(4)">4</div>
+    <div class="number-btn" onclick="setHoleValue(5)">5</div>
+    <div class="number-btn" onclick="setHoleValue(6)">6</div>
+    <div class="number-btn" onclick="setHoleValue(7)">7</div>
+    <div class="number-btn" onclick="setHoleValue(8)">8</div>
+    <div class="number-btn" onclick="setHoleValue(9)">9</div>
+    <div class="number-btn" onclick="setHoleValue(10)">10</div>
+    <div class="color-options">
+      <div class="color-btn yellow" onclick="setHoleColor('yellow')">Kering</div>
+      <div class="color-btn green" onclick="setHoleColor('green')">Basah</div>
+    </div>
+    <div class="number-btn clear" onclick="setHoleValue(0)">Hapus</div>
+    <div class="number-btn close" onclick="closeNumberPad()">Tutup</div>
+  </div>
+
+  <script>
+    // Initialize jsPDF
+    const { jsPDF } = window.jspdf;
+
+    // Initialize grid with dynamic sizing - 30 columns
+    const grid = document.getElementById("dotGrid");
+    const rows = 15;
+    const cols = 30;
+    const holes = [];
+    let currentHole = null;
+    const numberPad = document.getElementById("numberPad");
+
+    // Signature Pad Variables
+    let signaturePad1, signaturePad2;
+
+    // Create column labels row
+    const columnLabelsRow = document.createElement("div");
+    columnLabelsRow.className = "row";
+    const emptyLabel = document.createElement("div");
+    emptyLabel.className = "row-label";
+    emptyLabel.textContent = "";
+    columnLabelsRow.appendChild(emptyLabel);
+    
+    for (let c = 1; c <= cols; c++) {
+      const columnLabel = document.createElement("div");
+      columnLabel.className = "column-label";
+      columnLabel.textContent = c;
+      columnLabelsRow.appendChild(columnLabel);
+    }
+    grid.appendChild(columnLabelsRow);
+
+    // Create grid holes with responsive sizing
+    for (let r = 1; r <= rows; r++) {
+      const row = document.createElement("div");
+      row.className = "row" + (r % 2 !== 0 ? "" : " offset");
+      
+      // Add row label (A, B, C, ...)
+      const rowLabel = document.createElement("div");
+      rowLabel.className = "row-label";
+      rowLabel.textContent = String.fromCharCode(64 + r);
+      row.appendChild(rowLabel);
+      
+      for (let c = 1; c <= cols; c++) {
+        const hole = document.createElement("div");
+        hole.className = "hole";
+        hole.dataset.row = r;
+        hole.dataset.col = c;
+        hole.dataset.value = "0";
+        hole.dataset.color = "";
+        hole.dataset.id = String.fromCharCode(64 + r) + c;
+        
+        hole.addEventListener("click", () => {
+          document.querySelectorAll('.hole').forEach(h => h.classList.remove('selected'));
+          hole.classList.add('selected');
+          currentHole = hole;
+          showNumberPad();
+        });
+        
+        hole.addEventListener("touchstart", (e) => {
+          e.preventDefault();
+          document.querySelectorAll('.hole').forEach(h => h.classList.remove('selected'));
+          hole.classList.add('selected');
+          currentHole = hole;
+          showNumberPad();
+        }, { passive: false });
+        
+        row.appendChild(hole);
+        holes.push(hole);
+      }
+      grid.appendChild(row);
+    }
+
+    // Initialize Signature Pads when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+      initializeSignaturePads();
+    });
+
+    // Signature Pad Functionality
+    function initializeSignaturePads() {
+      // Initialize first signature pad
+      const canvas1 = document.getElementById('signaturePad1');
+      resizeCanvas(canvas1);
+      signaturePad1 = new SignaturePad(canvas1, {
+        backgroundColor: 'rgb(255, 255, 255)',
+        penColor: 'rgb(0, 0, 0)',
+        minWidth: 1,
+        maxWidth: 3,
+        throttle: 16
+      });
+      
+      // Initialize second signature pad
+      const canvas2 = document.getElementById('signaturePad2');
+      resizeCanvas(canvas2);
+      signaturePad2 = new SignaturePad(canvas2, {
+        backgroundColor: 'rgb(255, 255, 255)',
+        penColor: 'rgb(0, 0, 0)',
+        minWidth: 1,
+        maxWidth: 3,
+        throttle: 16
+      });
+      
+      // Add event listeners for signature end
+      signaturePad1.addEventListener('endStroke', () => updateTimestamp(1));
+      signaturePad2.addEventListener('endStroke', () => updateTimestamp(2));
+      
+      // Make signature pads responsive
+      window.addEventListener('resize', () => {
+        resizeCanvas(canvas1);
+        resizeCanvas(canvas2);
+      });
+    }
+    
+    function resizeCanvas(canvas) {
+      const ratio = Math.max(window.devicePixelRatio || 1, 1);
+      canvas.width = canvas.offsetWidth * ratio;
+      canvas.height = canvas.offsetHeight * ratio;
+      canvas.getContext("2d").scale(ratio, ratio);
+      
+      // Redraw existing signature if any
+      if (canvas.id === 'signaturePad1' && signaturePad1 && !signaturePad1.isEmpty()) {
+        const data = signaturePad1.toData();
+        signaturePad1.clear();
+        signaturePad1.fromData(data);
+      } else if (canvas.id === 'signaturePad2' && signaturePad2 && !signaturePad2.isEmpty()) {
+        const data = signaturePad2.toData();
+        signaturePad2.clear();
+        signaturePad2.fromData(data);
+      }
+    }
+    
+    function clearSignature(padNumber) {
+      if (padNumber === 1) {
+        signaturePad1.clear();
+        document.getElementById('timestamp1').textContent = '';
+      } else {
+        signaturePad2.clear();
+        document.getElementById('timestamp2').textContent = '';
+      }
+    }
+    
+    function updateTimestamp(padNumber) {
+      const now = new Date();
+      const timestamp = `Ditandatangani: ${now.toLocaleDateString('id-ID')} ${now.toLocaleTimeString('id-ID')}`;
+      document.getElementById(`timestamp${padNumber}`).textContent = timestamp;
+    }
+
+    // Toggle cross square
+    function toggleCrossSquare(square) {
+      if (square.textContent === "U") {
+        square.textContent = "";
+        square.classList.remove("filled");
+      } else {
+        square.textContent = "U";
+        square.classList.add("filled");
+      }
+    }
+
+    // Show number pad
+    function showNumberPad() {
+      numberPad.classList.add("visible");
+    }
+
+    // Close number pad
+    function closeNumberPad() {
+      numberPad.classList.remove("visible");
+      if (currentHole) {
+        currentHole.classList.remove('selected');
+      }
+      currentHole = null;
+    }
+
+    // Set hole value
+    function setHoleValue(value) {
+      if (currentHole) {
+        if (value === 0) {
+          currentHole.textContent = "";
+          currentHole.dataset.value = "0";
+          currentHole.className = "hole";
+          currentHole.dataset.color = "";
+        } else {
+          currentHole.textContent = value;
+          currentHole.dataset.value = value;
+          
+          if (currentHole.dataset.color) {
+            currentHole.className = `hole ${currentHole.dataset.color}`;
+          } else {
+            currentHole.className = "hole";
+          }
+        }
+        updateCalculations();
+      }
+    }
+
+    // Set hole color
+    function setHoleColor(color) {
+      if (currentHole && currentHole.dataset.value !== "0") {
+        currentHole.classList.remove("yellow", "green");
+        currentHole.dataset.color = color;
+        if (color) {
+          currentHole.classList.add(color);
+        }
+        updateCalculations();
+      }
+    }
+
+    // Update calculations
+    function updateCalculations() {
+      const filledHoles = holes.filter(hole => hole.dataset.value !== "0");
+      const totalHole = filledHoles.length;
+      document.getElementById("totalHole").value = totalHole;
+      
+      // Calculate wet holes (green-colored holes)
+      const wetHoles = filledHoles.filter(hole => hole.dataset.color === "green").length;
+      document.getElementById("wetHoles").value = wetHoles;
+      
+      // Calculate dry holes (yellow-colored holes)
+      const dryHoles = filledHoles.filter(hole => hole.dataset.color === "yellow").length;
+      
+      const sum = filledHoles.reduce((acc, hole) => acc + parseInt(hole.dataset.value), 0);
+      const avgDepth = totalHole > 0 ? (sum / totalHole).toFixed(2) + " m" : "0 m";
+      document.getElementById("avgDepth").value = avgDepth;
+      
+      // Calculate Needed Time
+      const neededTimeMinutes = (wetHoles * 2) + (dryHoles * 1) + (dryHoles * 0.5) + (wetHoles * 1);
+      const neededTimeHours = (neededTimeMinutes / 60).toFixed(2);
+      document.getElementById("neededTime").value = neededTimeHours + " jam";
+    }
+
+    // Submit data
+    function submitDots() {
+      const filledHoles = holes
+        .filter(hole => hole.dataset.value !== "0")
+        .map(hole => {
+          const condition = hole.dataset.color === "yellow" ? "KERING" : 
+                           hole.dataset.color === "green" ? "BASAH" : "NORMAL";
+          return `${hole.dataset.id}=${hole.dataset.value}m (${condition})`;
+        })
+        .join("\n");
+
+      const formData = {
+        pit: document.getElementById("pit").value,
+        tanggal: document.getElementById("tanggal").value,
+        shift: document.getElementById("shift").value,
+        blok: document.getElementById("blok").value,
+        strip: document.getElementById("strip").value,
+        elevasi: document.getElementById("elevasi").value,
+        rl: document.getElementById("rl").value,
+        diaHole: document.getElementById("diaHole").value,
+        spacing: document.getElementById("spacing").value,
+        burden: document.getElementById("burden").value,
+        totalHole: document.getElementById("totalHole").value,
+        wetHoles: document.getElementById("wetHoles").value,
+        avgDepth: document.getElementById("avgDepth").value,
+        neededTime: document.getElementById("neededTime").value
+      };
+
+      // Check signatures
+      const signature1Status = signaturePad1.isEmpty() ? "BELUM ditandatangani" : "SUDAH ditandatangani";
+      const signature2Status = signaturePad2.isEmpty() ? "BELUM ditandatangani" : "SUDAH ditandatangani";
+      const signature1Timestamp = document.getElementById('timestamp1').textContent || "-";
+      const signature2Timestamp = document.getElementById('timestamp2').textContent || "-";
+
+      const result = `LAPORAN PEMERIKSAAN LUBANG
+=======================================
+PIT: ${formData.pit}
+TANGGAL: ${formData.tanggal}
+SHIFT: ${formData.shift}
+BLOK: ${formData.blok}
+STRIP: ${formData.strip}
+ELEVASI: ${formData.elevasi} m
+RL: ${formData.rl}
+DIAMETER LUBANG: ${formData.diaHole} mm
+SPACING: ${formData.spacing} m
+BURDEN: ${formData.burden} m
+TOTAL LUBANG: ${formData.totalHole}
+LUBANG BASAH: ${formData.wetHoles}
+KEDALAMAN RATA-RATA: ${formData.avgDepth}
+WAKTU YANG DIBUTUHKAN: ${formData.neededTime}
+
+HASIL PEMERIKSAAN:
+${filledHoles || 'Tidak ada lubang diperiksa'}
+
+STATUS TANDA TANGAN:
+- Crew Blasting: ${signature1Status} (${signature1Timestamp})
+- GL Drill & Blast: ${signature2Status} (${signature2Timestamp})
+
+KETERANGAN:
+- KUNING: Kondisi kering
+- HIJAU: Kondisi basah
+
+Edited by Nur Aisyah`;
+
+      document.getElementById("output").value = result;
+      document.getElementById("output").scrollIntoView({ behavior: 'smooth' });
+      alert("Data pemeriksaan berhasil disimpan!");
+    }
+
+    /* Fungsi PDF Export Kualitas Terbaik */
+    async function downloadAsPDF() {
+      const { jsPDF } = window.jspdf;
+      const originalText = document.querySelector('.download').textContent;
+      document.querySelector('.download').textContent = 'Membuat PDF...';
+      
+      try {
+        // 1. Buat container khusus lebar untuk ekspor
+        const pdfExportContainer = document.createElement("div");
+        pdfExportContainer.className = "pdf-export-container";
+        document.body.appendChild(pdfExportContainer);
+        
+        // 2. Clone konten utama
+        const element = document.querySelector(".container");
+        const clone = element.cloneNode(true);
+        clone.className += " pdf-export";
+        
+        // 3. Hapus elemen yang tidak perlu
+        clone.querySelector('.number-pad')?.remove();
+        clone.querySelectorAll('button').forEach(btn => btn.remove());
+        
+        // 4. Sesuaikan ukuran lubang untuk ekspor
+        clone.querySelectorAll('.hole').forEach(hole => {
+          hole.style.width = "28px";
+          hole.style.height = "28px";
+          hole.style.fontSize = "11px";
+        });
+        
+        pdfExportContainer.appendChild(clone);
+        
+        // 5. Render tanda tangan
+        const cloneCanvas1 = clone.querySelector('#signaturePad1');
+        const cloneCanvas2 = clone.querySelector('#signaturePad2');
+        
+        if (!signaturePad1.isEmpty()) {
+          const data = signaturePad1.toData();
+          const tempSig1 = new SignaturePad(cloneCanvas1);
+          tempSig1.fromData(data);
+        }
+        
+        if (!signaturePad2.isEmpty()) {
+          const data = signaturePad2.toData();
+          const tempSig2 = new SignaturePad(cloneCanvas2);
+          tempSig2.fromData(data);
+        }
+        
+        // 6. Tunggu rendering selesai
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        
+        // 7. Hitung dimensi konten
+        const pdf = new jsPDF({
+          orientation: "landscape",
+          unit: "mm",
+          format: "a4"
+        });
+        
+        const pageWidth = pdf.internal.pageSize.getWidth();
+        const pageHeight = pdf.internal.pageSize.getHeight();
+        
+        // 8. Capture dengan kualitas terbaik
+        const canvas = await html2canvas(pdfExportContainer, {
+          scale: 2, /* Skala 2x untuk kualitas tinggi */
+          logging: false,
+          useCORS: true,
+          allowTaint: true,
+          scrollX: 0,
+          scrollY: 0,
+          windowWidth: pdfExportContainer.scrollWidth,
+          windowHeight: pdfExportContainer.scrollHeight
+        });
+        
+        // 9. Hitung rasio aspek
+        const imgWidth = pageWidth;
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        
+        // 10. Buat PDF multi-halaman jika diperlukan
+        let totalPages = Math.ceil(imgHeight / pageHeight);
+        totalPages = Math.max(1, totalPages); // Minimal 1 halaman
+        
+        for (let i = 0; i < totalPages; i++) {
+          if (i > 0) pdf.addPage();
+          
+          const cropCanvas = document.createElement("canvas");
+          cropCanvas.width = canvas.width;
+          cropCanvas.height = Math.min(canvas.height/totalPages, canvas.height - (i * (canvas.height/totalPages)));
+          
+          const ctx = cropCanvas.getContext("2d");
+          ctx.drawImage(
+            canvas, 
+            0, i * (canvas.height/totalPages),
+            canvas.width, canvas.height/totalPages,
+            0, 0,
+            canvas.width, canvas.height/totalPages
+          );
+          
+          // Tambahkan ke PDF dengan kualitas terbaik
+          pdf.addImage(
+            cropCanvas.toDataURL('image/png'), 
+            'PNG', 
+            0, 0, 
+            pageWidth, pageHeight,
+            null, 
+            'FAST' // Mode FAST untuk menjaga kualitas
+          );
+        }
+        
+        // 11. Simpan PDF
+        const pdfBlob = pdf.output('blob');
+        if (pdfBlob.size > 2 * 1024 * 1024) {
+          alert('Ukuran file melebihi 2MB. Silakan kurangi jumlah lubang.');
+          return;
+        }
+        
+        pdf.save(`Laporan-Lubang-Ledak-${new Date().toLocaleDateString('id-ID')}.pdf`);
+        document.body.removeChild(pdfExportContainer);
+        
+      } catch (error) {
+        console.error("Error generating PDF:", error);
+        alert("Gagal membuat PDF. Silakan coba lagi.");
+      } finally {
+        document.querySelector('.download').textContent = originalText;
+      }
+    }
+
+    /* Fungsi Image Export Kualitas Terbaik */
+    async function downloadAsImage() {
+      const originalText = document.querySelector('.image-download').textContent;
+      document.querySelector('.image-download').textContent = 'Membuat gambar...';
+      
+      try {
+        // 1. Buat container khusus
+        const exportContainer = document.createElement("div");
+        exportContainer.className = "print-version";
+        exportContainer.style.position = "fixed";
+        exportContainer.style.left = "0";
+        exportContainer.style.top = "0";
+        exportContainer.style.width = "1900px";
+        exportContainer.style.padding = "20px";
+        exportContainer.style.backgroundColor = "white";
+        exportContainer.style.zIndex = "9999";
+        document.body.appendChild(exportContainer);
+        
+        // 2. Clone konten
+        const element = document.querySelector(".container");
+        const clone = element.cloneNode(true);
+        
+        // 3. Optimasi untuk ekspor
+        clone.style.width = "100%";
+        clone.querySelectorAll('.hole').forEach(hole => {
+          hole.style.width = "28px";
+          hole.style.height = "28px";
+          hole.style.fontSize = "11px";
+        });
+        
+        exportContainer.appendChild(clone);
+        
+        // 4. Render tanda tangan
+        const cloneCanvas1 = clone.querySelector('#signaturePad1');
+        const cloneCanvas2 = clone.querySelector('#signaturePad2');
+        
+        if (!signaturePad1.isEmpty()) {
+          const data = signaturePad1.toData();
+          const tempSig1 = new SignaturePad(cloneCanvas1);
+          tempSig1.fromData(data);
+        }
+        
+        if (!signaturePad2.isEmpty()) {
+          const data = signaturePad2.toData();
+          const tempSig2 = new SignaturePad(cloneCanvas2);
+          tempSig2.fromData(data);
+        }
+        
+        // 5. Tunggu rendering selesai
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        
+        // 6. Capture dengan kualitas terbaik
+        const canvas = await html2canvas(exportContainer, {
+          scale: 2, /* Skala 2x untuk kualitas tinggi */
+          logging: false,
+          useCORS: true,
+          allowTaint: true,
+          scrollX: 0,
+          scrollY: 0,
+          windowWidth: exportContainer.scrollWidth,
+          windowHeight: exportContainer.scrollHeight
+        });
+        
+        // 7. Konversi ke Blob untuk cek ukuran
+        canvas.toBlob(blob => {
+          if (blob.size > 2 * 1024 * 1024) {
+            alert('Ukuran file melebihi 2MB. Silakan kurangi jumlah lubang.');
+            return;
+          }
+          
+          // 8. Unduh gambar
+          const link = document.createElement('a');
+          link.download = `Laporan-Lubang-Ledak-${new Date().toISOString().slice(0,10)}.png`;
+          link.href = canvas.toDataURL('image/png');
+          link.click();
+        }, 'image/png', 1.0); /* Kualitas 100% */
+        
+      } catch (error) {
+        console.error("Error generating image:", error);
+        alert("Gagal membuat gambar. Silakan coba lagi.");
+      } finally {
+        document.body.removeChild(exportContainer);
+        document.querySelector('.image-download').textContent = originalText;
+      }
+    }
+
+    // Set today's date as default
+    document.getElementById("tanggal").valueAsDate = new Date();
+
+    // Adjust grid size on orientation change
+    window.addEventListener('resize', function() {
+      const holes = document.querySelectorAll('.hole');
+      const newSize = window.innerWidth > window.innerHeight ? '28px' : '30px';
+      const newFontSize = window.innerWidth > window.innerHeight ? '11px' : '12px';
+      
+      holes.forEach(hole => {
+        hole.style.width = newSize;
+        hole.style.height = newSize;
+        hole.style.minWidth = newSize;
+        hole.style.fontSize = newFontSize;
+      });
+    });
+  </script>
+</body>
+</html>
